@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoRide - Revolutionary Urban Transit</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) rotate(2deg);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+
+        .section-transition {
+            position: relative;
+            padding: 100px 0;
+        }
+
+        .section-transition::before,
+        .section-transition::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background-size: 100% 100px;
+            z-index: 1;
+        }
+
+        .section-transition::before {
+            top: -100px;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 100L120 83.3C240 66.7 480 33.3 720 16.7C960 0 1200 0 1320 0L1440 0V100H1320C1200 100 960 100 720 100C480 100 240 100 120 100H0Z' fill='%23FFFFFF'/%3E%3C/svg%3E");
+        }
+
+        .section-transition::after {
+            bottom: -100px;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0L120 16.7C240 33.3 480 66.7 720 83.3C960 100 1200 100 1320 100L1440 100V0H1320C1200 0 960 0 720 0C480 0 240 0 120 0H0Z' fill='%23FFFFFF'/%3E%3C/svg%3E");
+        }
+
+        #hero-animation, #features-animation, #how-it-works-animation {
+            width: 100%;
+            height: 400px;
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .parallax {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        @media (max-width: 768px) {
+            .section-transition {
+                padding: 50px 0;
+            }
+
+            .section-transition::before,
+            .section-transition::after {
+                height: 50px;
+            }
+
+            #hero-animation, #features-animation, #how-it-works-animation {
+                height: 300px;
+            }
+
+            #map {
+                height: 300px;
+            }
+        }
+
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .preloader-animation {
+            width: 100px;
+            height: 100px;
+        }
+
+        .section-content {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .section-content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="preloader">
+        <lottie-player class="preloader-animation" src="https://assets3.lottiefiles.com/packages/lf20_szlepbdh.json" background="transparent" speed="1" loop autoplay></lottie-player>
+    </div>
+
+    <nav class="fixed top-0 left-0 w-full bg-white bg-opacity-90 backdrop-filter backdrop-blur-lg z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold gradient-text">NeoRide</a>
+            <button class="md:hidden" id="mobile-menu-button">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+            <ul class="hidden md:flex space-x-6" id="menu">
+                <li><a href="#features" class="hover:text-primary-color transition-colors">Features</a></li>
+                <li><a href="#how-it-works" class="hover:text-primary-color transition-colors">How It Works</a></li>
+                <li><a href="#fleet" class="hover:text-primary-color transition-colors">Our Fleet</a></li>
+                <li><a href="#testimonials" class="hover:text-primary-color transition-colors">Testimonials</a></li>
+                <li><a href="#book-ride" class="hover:text-primary-color transition-colors">Book a Ride</a></li>
+                <li><a href="#download" class="btn-primary">Get NeoRide</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header id="hero" class="pt-24 pb-16 bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+            <div class="w-full md:w-1/2 mb-10 md:mb-0">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 animate__animated animate__fadeInLeft">
+                    Revolutionize Your <span class="gradient-text">Urban Transit</span>
+                </h1>
+                <p class="text-lg md:text-xl mb-8 animate__animated animate__fadeInLeft animate__delay-1s">
+                    Experience the future of transportation with AI-powered routes, eco-friendly vehicles, and seamless city navigation.
+                </p>
+                <a href="#book-ride" class="btn-primary text-lg animate__animated animate__fadeInUp animate__delay-2s">
+                    Book Your Ride Now
+                </a>
+            </div>
+            <div class="w-full md:w-1/2 animate__animated animate__fadeInRight">
+                <lottie-player id="hero-animation" src="https://assets2.lottiefiles.com/packages/lf20_UgZWvP.json" background="transparent" speed="1" loop autoplay></lottie-player>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="section-transition bg-white py-16">
+        <div class="container mx-auto px-4 section-content">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center gradient-text">Why Choose NeoRide?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card p-6 text-center">
+                    <i class="fas fa-route text-5xl mb-4 text-blue-500"></i>
+                    <h3 class="text-xl md:text-2xl font-bold mb-4">AI-Powered Routing</h3>
+                    <p>Our advanced algorithms ensure you always get the fastest route, adapting to real-time traffic and weather conditions.</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <i class="fas fa-leaf text-5xl mb-4 text-green-500"></i>
+                    <h3 class="text-xl md:text-2xl font-bold mb-4">Eco-Friendly Fleet</h3>
+                    <p>Our 100% electric vehicle fleet contributes to a cleaner, greener urban environment.</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <i class="fas fa-vr-cardboard text-5xl mb-4 text-purple-500"></i>
+                    <h3 class="text-xl md:text-2xl font-bold mb-4">AR Navigation</h3>
+                    <p>Experience turn-by-turn directions like never before with our augmented reality windshield display.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="section-transition bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+        <div class="container mx-auto px-4 section-content">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center gradient-text">How NeoRide Works</h2>
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="w-full md:w-1/2 mb-10 md:mb-0">
+                    <ol class="space-y-6">
+                        <li class="flex items-center">
+                            <span class="bg-primary-color text-white rounded-full w-8 h-8 flex items-center justify-center mr-4">1</span>
+                            <p class="text-lg">Open the NeoRide app and enter your destination</p>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="bg-primary-color text-white rounded-full w-8 h-8 flex items-center justify-center mr-4">2</span>
+                            <p class="text-lg">Choose your preferred eco-friendly vehicle</p>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="bg-primary-color text-white rounded-full w-8 h-8 flex items-center justify-center mr-4">3</span>
+                            <p class="text-lg">Your NeoRide arrives with AR-enabled navigation</p>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="bg-primary-color text-white rounded-full w-8 h-8 flex items-center justify-center mr-4">4</span>
+                            <p class="text-lg">Enjoy your efficient, eco-friendly journey</p>
+                        </li>
+                    </ol>
+                </div>
+                <div class="w-full md:w-1/2">
+                    <lottie-player id="how-it-works-animation" src="https://assets4.lottiefiles.com/packages/lf20_lsuoxc1t.json" background="transparent" speed="1" loop autoplay></lottie-player>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="fleet" class="section-transition bg-white">
+        <div class="container mx-auto px-4 section-content">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center gradient-text">Our Cutting-Edge Fleet</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card overflow-hidden">
+                    <img src="R (3).jpg" alt="Eco Sedan" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2">Eco Sedan</h3>
+                        <p class="mb-4">Perfect for city commutes and small groups.</p>
+                        <ul class="list-disc list-inside">
+                            <li>300-mile range</li>
+                            <li>0-60 mph in 5.5 seconds</li>
+                            <li>Advanced autopilot features</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card overflow-hidden">
+                    <img src="Blue-green-2024-Kia-EV9-electric-SUV-parked-in-the-desert.jpg" alt="Electric SUV" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2">Electric SUV</h3>
+                        <p class="mb-4">Spacious and comfortable for longer trips.</p>
+                        <ul class="list-disc list-inside">
+                            <li>350-mile range</li>
+                            <li>All-wheel drive</li>
+                            <li>Panoramic glass roof</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card overflow-hidden">
+                    <img src="tesla-model-x.jpg" alt="Luxury EV" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2">Luxury EV</h3>
+                        <p class="mb-4">Premium experience for discerning passengers.</p>
+                        <ul class="list-disc list-inside">
+                            <li>400-mile range</li>
+                            <li>Executive seating</li>
+                            <li>Advanced sound system</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="impact" class="section-transition bg-gradient-to-br from-green-400 to-blue-500 text-white">
+        <div class="container mx-auto px-4 section-content">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center">Your Impact Dashboard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="glass-effect p-8 rounded-lg">
+                    <h3 class="text-3xl font-bold mb-4">1,234 tons</h3>
+                    <p>CO2 emissions saved by our riders</p>
+                </div>
+                <div class="glass-effect p-8 rounded-lg">
+                    <h3 class="text-3xl font-bold mb-4">56,789</h3>
+                    <p>Trees planted through our carbon offset program</p>
+                </div>
+                <div class="glass-effect p-8 rounded-lg">
+                    <h3 class="text-3xl font-bold mb-4">15%</h3>
+                    <p>Improvement in urban air quality</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="section-transition bg-white">
+        <div class="container mx-auto px-4 section-content">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center gradient-text">What Our Riders Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card p-6">
+                    <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_3vbOcw.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
+                    <p class="mb-4">"NeoRide's AR navigation is a game-changer. It's like having a futuristic co-pilot!"</p>
+                    <p class="font-bold">- Alex Chen, Tech Enthusiast</p>
+                </div>
+                <div class="card p-6">
+                    <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_3vbOcw.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
+                    <p class="mb-4">"I love contributing to a cleaner city every time I use NeoRide's eco-friendly fleet."</p>
+                    <p class="font-bold">- Samantha Green, Environmental Activist</p>
+                </div>
+                <div class="card p-6">
+                    <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_3vbOcw.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
+                    <p class="mb-4">"The AI routing is incredible. I've never reached my destinations faster!"</p>
+                    <p class="font-bold">- Michael Johnson, Business Executive</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="book-ride" class="section-transition bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+        <div class="container mx-auto px-4 section-content">
+            <h2 class="text-3xl md:text-4xl font-bold mb-12 text-center gradient-text">Book Your NeoRide</h2>
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="w-full md:w-1/2 mb-10 md:mb-0">
+                    <form id="ride-booking-form" class="space-y-4">
+                        <div>
+                            <label for="pickup" class="block mb-2">Pickup Location</label>
+                            <input type="text" id="pickup" name="pickup" class="w-full p-2 border border-gray-300 rounded" required>
+                        </div>
+                        <div>
+                            <label for="destination" class="block mb-2">Destination</label>
+                            <input type="text" id="destination" name="destination" class="w-full p-2 border border-gray-300 rounded" required>
+                        </div>
+                        <div>
+                            <label for="vehicle-type" class="block mb-2">Vehicle Type</label>
+                            <select id="vehicle-type" name="vehicle-type" class="w-full p-2 border border-gray-300 rounded" required>
+                                <option value="">Select a vehicle</option>
+                                <option value="sedan">Eco Sedan</option>
+                                <option value="suv">Electric SUV</option>
+                                <option value="luxury">Luxury EV</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="date" class="block mb-2">Date</label>
+                            <input type="date" id="date" name="date" class="w-full p-2 border border-gray-300 rounded" required>
+                        </div>
+                        <div>
+                            <label for="time" class="block mb-2">Time</label>
+                            <input type="time" id="time" name="time" class="w-full p-2 border border-gray-300 rounded" required>
+                        </div>
+                        <button type="submit" class="btn-primary w-full">Book Now</button>
+                    </form>
+                </div>
+                <div class="w-full md:w-1/2">
+                    <div id="map" class="rounded-lg shadow-lg"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="download" class="section-transition bg-white">
+        <div class="container mx-auto px-4 text-center section-content">
+            <h2 class="text-3xl md:text-4xl font-bold mb-8 gradient-text">Ready to Transform Your Commute?</h2>
+            <p class="text-xl mb-8">Join thousands of satisfied riders and revolutionize your urban travel experience today.</p>
+            <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4">
+                <a href="#" class="btn-primary flex items-center justify-center">
+                    <i class="fab fa-apple mr-2"></i>
+                    Download for iOS
+                </a>
+                <a href="#" class="btn-primary flex items-center justify-center">
+                    <i class="fab fa-google-play mr-2"></i>
+                    Download for Android
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4 gradient-text">NeoRide</h3>
+                    <p>Redefining urban mobility for a sustainable future.</p>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-primary-color transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-primary-color transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-primary-color transition-colors">Press</a></li>
+                        <li><a href="#" class="hover:text-primary-color transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-primary-color transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-primary-color transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-primary-color transition-colors">Cookie Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Connect With Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="hover:text-primary-color transition-colors">
+                            <i class="fab fa-twitter text-2xl"></i>
+                        </a>
+                        <a href="#" class="hover:text-primary-color transition-colors">
+                            <i class="fab fa-facebook text-2xl"></i>
+                        </a>
+                        <a href="#" class="hover:text-primary-color transition-colors">
+                            <i class="fab fa-instagram text-2xl"></i>
+                        </a>
+                        <a href="#" class="hover:text-primary-color transition-colors">
+                            <i class="fab fa-linkedin text-2xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 text-center">
+                <p>&copy; 2024 NeoRide. All rights reserved. Driving towards a sustainable future.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Preloader
+        window.addEventListener('load', () => {
+            const preloader = document.querySelector('.preloader');
+            preloader.classList.add('animate__animated', 'animate__fadeOut');
+            preloader.addEventListener('animationend', () => {
+                preloader.style.display = 'none';
+            });
+        });
+
+        // Animate sections on scroll
+        function animateSections() {
+            gsap.utils.toArray('.section-content').forEach((section, i) => {
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 80%",
+                        end: "bottom 20%",
+                        toggleActions: "play none none reverse"
+                    }
+                });
+
+                tl.to(section, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.6,
+                    ease: "power2.out"
+                });
+            });
+        }
+
+        // Animate hero section
+        function animateHero() {
+            const heroTl = gsap.timeline();
+            heroTl.from("#hero h1", { x: -100, opacity: 0, duration: 1 })
+                  .from("#hero p", { x: -100, opacity: 0, duration: 1 }, "-=0.5")
+                  .from("#hero .btn-primary", { y: 50, opacity: 0, duration: 1 }, "-=0.5")
+                  .from("#hero-animation", { scale: 0.8, opacity: 0, duration: 1 }, "-=0.5");
+        }
+
+        // Animate navigation on scroll
+        function animateNavigation() {
+            const nav = document.querySelector('nav');
+            const navAnimation = gsap.from(nav, {
+                yPercent: -100,
+                paused: true,
+                duration: 0.2
+            }).progress(1);
+
+            ScrollTrigger.create({
+                start: "top top",
+                end: 99999,
+                onUpdate: (self) => {
+                    self.direction === -1 ? navAnimation.play() : navAnimation.reverse();
+                }
+            });
+        }
+
+        // Initialize Mapbox
+        function initMap() {
+            mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [-74.5, 40],
+                zoom: 9
+            });
+        }
+
+        // Mobile menu toggle
+        function initMobileMenu() {
+            const menuButton = document.getElementById('mobile-menu-button');
+            const menu = document.getElementById('menu');
+
+            menuButton.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+                menu.classList.toggle('flex');
+                menu.classList.toggle('flex-col');
+                menu.classList.toggle('absolute');
+                menu.classList.toggle('top-16');
+                menu.classList.toggle('left-0');
+                menu.classList.toggle('w-full');
+                menu.classList.toggle('bg-white');
+                menu.classList.toggle('p-4');
+            });
+        }
+
+        // Ride booking form submission
+        function initRideBooking() {
+            const form = document.getElementById('ride-booking-form');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                // Here you would typically send the form data to your backend
+                alert('Ride booked successfully!');
+            });
+        }
+
+        // Smooth scrolling for navigation links
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        }
+
+        // Parallax effect for background elements
+        function createParallaxEffect() {
+            gsap.utils.toArray('.parallax').forEach((section) => {
+                gsap.to(section, {
+                    backgroundPosition: `50% ${innerHeight / 2}px`,
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top bottom",
+                        end: "bottom top",
+                        scrub: true
+                    }
+                });
+            });
+        }
+
+        // Animate count-up for impact numbers
+        function animateImpactNumbers() {
+            const impactSection = document.getElementById('impact');
+            const numbers = impactSection.querySelectorAll('h3');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        numbers.forEach(num => {
+                            const targetNumber = parseInt(num.innerText);
+                            const duration = 2000;
+                            const step = targetNumber / (duration / 16);
+                            let current = 0;
+
+                            const updateNumber = () => {
+                                current += step;
+                                if (current < targetNumber) {
+                                    num.innerText = Math.round(current);
+                                    requestAnimationFrame(updateNumber);
+                                } else {
+                                    num.innerText = targetNumber;
+                                }
+                            };
+
+                            requestAnimationFrame(updateNumber);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            observer.observe(impactSection);
+        }
+
+        // Initialize animations and functions
+        document.addEventListener('DOMContentLoaded', () => {
+            animateSections();
+            animateHero();
+            animateNavigation();
+            initMap();
+            initMobileMenu();
+            initRideBooking();
+            initSmoothScroll();
+            createParallaxEffect();
+            animateImpactNumbers();
+        });
+    </script>
+</body>
+</html>
